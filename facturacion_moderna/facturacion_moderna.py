@@ -71,6 +71,33 @@ class Cliente:
       self.__dict__['error'] = e.message
       return False
 
+  def activarCancelacion(self, archCer, archKey, passKey):
+    try:
+      # en caso de que archCer y/o archKey sean una ruta a archivo y no una cadena, abrir y cargar ruta
+      if os.path.isfile(archCer): archCer = open(archCer, 'r').read()
+      if os.path.isfile(archKey): archKey = open(archKey, 'r').read()
+      opciones = {}
+      opciones['archivoKey'] = base64.b64encode(archKey)
+      opciones['archivoCer'] = base64.b64encode(archCer)
+      opciones['clave'] = passKey
+      self.opciones.update(opciones)
+      cliente = Client(self.url)
+      respuesta = cliente.service.activarCancelacion(self.opciones)
+      if self.debug:
+        self.logger.info("\nSOAP request:\n %s" % cliente.last_sent())
+        self.logger.info("\nSOAP response:\n %s" % cliente.last_received())
+      return True
+    except WebFault, e:
+      self.__dict__['codigo_error'] = e.fault.faultcode
+      self.__dict__['error'] = e.fault.faultstring
+      if self.debug:
+        self.logger.error("\nSOAP request:\n %s\nSOAP response: [%s] - %s" % (cliente.last_sent(), e.fault.faultcode, e.fault.faultstring))
+      return False
+    except Exception, e:
+      self.__dict__['codigo_error'] = 'Error desconocido'
+      self.__dict__['error'] = e.message
+      return False
+
   def _activa_debug(self):
     if not os.path.exists('log'): os.makedirs('log')
     self.logger = logging.getLogger('facturacion_moderna')
