@@ -36,7 +36,7 @@ def prueba_timbrado(debug = False):
     comprobante = os.path.join(folder, cliente.uuid)
     for extension in ['xml', 'pdf', 'png', 'txt']:
       if hasattr(cliente, extension):
-        with open(("%s.%s" % (comprobante, extension)), 'w') as f: f.write(getattr(cliente, extension))
+        with open(("%s.%s" % (comprobante, extension)), 'wb' if extension in ['pdf','png'] else 'w') as f: f.write(getattr(cliente, extension))
         print("%s almacenado correctamente en %s.%s" % (extension.upper(), comprobante, extension))
     print 'Timbrado exitoso'
   else:
